@@ -371,3 +371,5 @@ cv2.destroyAllWindows()
 
 
 #############################################
+input_embeddings = create_input_image_embeddings()
+recognize_faces_in_cam(input_embeddings)
