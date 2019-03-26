@@ -23,12 +23,17 @@ wait_milisecons=100
 image_folder="images/*"
 min_distance=200
 threshold=0.68
+sample_num=1
 
 np.set_printoptions(threshold=sys.maxsize)
 
 model=OpenFaceModel()
 
 model.loadWeights()
+
+# model.sampleFaces(haarcascade_xml_path=haarcascade_xml_path,
+#                   wait_milisecons=wait_milisecons,
+#                   sample_num=sample_num)
 
 input_embeddings = model.create_input_image_embeddings(image_folder=image_folder)
 model.recognize_faces_in_cam(input_embeddings,
