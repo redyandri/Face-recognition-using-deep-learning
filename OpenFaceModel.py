@@ -383,9 +383,9 @@ class OpenFaceModel(object):
                 name = input_name
 
         if minimum_distance < threshold:
-            return str(name)
+            return str(name), str(minimum_distance)
         else:
-            return None
+            return None,None
 
 
 ###########################
@@ -430,14 +430,14 @@ class OpenFaceModel(object):
                 y2 = y + h
 
                 face_image = frame[max(0, y1):min(height, y2), max(0, x1):min(width, x2)]
-                identity = self.recognize_face(face_image,
+                identity,distance = self.recognize_face(face_image,
                                                input_embeddings,
                                                min_distance=min_distance,
                                                threshold=threshold)
 
                 if identity is not None:
                     img = cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
-                    cv2.putText(img, str(identity), (x1 + 5, y1 - 5), font, 1, (255, 255, 255), 2)
+                    cv2.putText(img, str(identity+" ("+distance+")"), (x1 + 5, y1 - 5), font, 1, (255, 255, 255), 2)
 
             key = cv2.waitKey(wait_milisecons)
             cv2.imshow("Face Recognizer", img)
@@ -449,7 +449,8 @@ class OpenFaceModel(object):
 
 
 ###########################################
-    def sampleFaces(self,haarcascade_xml_path="haarcascade_frontalface_default.xml",
+    def sampleFaces(self,
+                    haarcascade_xml_path="haarcascade_frontalface_default.xml",
                                wait_milisecons=100,
                             sample_num=10):
         cam = cv2.VideoCapture(0)
