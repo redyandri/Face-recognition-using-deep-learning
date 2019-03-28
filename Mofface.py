@@ -19,7 +19,7 @@ import sys
 from OpenFaceModel  import OpenFaceModel
 
 haarcascade_xml_path="haarcascade_frontalface_default.xml"
-wait_milisecons=100
+wait_milisecons=500
 image_folder="images/*"
 min_distance=200
 threshold=0.68

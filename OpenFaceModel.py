@@ -447,37 +447,56 @@ class OpenFaceModel(object):
         vc.release()
         cv2.destroyAllWindows()
 
-
-###########################################
-    def sampleFaces(self,
-                    haarcascade_xml_path="haarcascade_frontalface_default.xml",
+################################################################
+################################
+    def captureAndRecognize(self,
+                               input_embeddings,
+                               haarcascade_xml_path="haarcascade_frontalface_default.xml",
                                wait_milisecons=100,
-                            sample_num=10):
-        cam = cv2.VideoCapture(0)
+                               min_distance=200,
+                               threshold=0.68):
+        cv2.namedWindow("Face Recognizer")
+        vc = cv2.VideoCapture(0)
 
-        face_detector = cv2.CascadeClassifier(haarcascade_xml_path)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        face_cascade = cv2.CascadeClassifier(haarcascade_xml_path)
+        identity=""
+        while vc.isOpened():
+            _, frame = vc.read()
+            img = frame
+            height, width, channels = frame.shape
 
-        count = 0
-        while (True):
-            ret, img = cam.read()
-            # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces = face_detector.detectMultiScale(img, 1.3, 5)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+            # Loop through all the faces detected
+            identities = []
             for (x, y, w, h) in faces:
                 x1 = x
                 y1 = y
                 x2 = x + w
                 y2 = y + h
-                cv2.rectangle(img, (x1, y1), (x2, y2), (255, 255, 255), 2)
-                count += 1
-                # Save the captured image into the datasets folder
-                cv2.imwrite("images/User_" + str(count) + ".jpg", img[y1:y2, x1:x2])
-                cv2.imshow('image', img)
-            k = cv2.waitKey(wait_milisecons) & 0xff  # Press 'ESC' for exiting video
-            if k == 27:
+
+                face_image = frame[max(0, y1):min(height, y2), max(0, x1):min(width, x2)]
+                identity,distance = self.recognize_face(face_image,
+                                               input_embeddings,
+                                               min_distance=min_distance,
+                                               threshold=threshold)
+
+                if identity is not None:
+                    print identity
+                    img = cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
+                    cv2.putText(img, str(identity + " (" + distance + ")"), (x1 + 5, y1 - 5), font, 1, (255, 255, 255),
+                                2)
+
+                key = cv2.waitKey(wait_milisecons)
+                cv2.imshow("Face Recognizer", img)
+            if key == 27:  # exit on ESC
                 break
-            elif count >= sample_num:  # Take 30 face sample and stop video
-                break
-        cam.release()
+        vc.release()
         cv2.destroyAllWindows()
+        return identity
+
+
 
 
